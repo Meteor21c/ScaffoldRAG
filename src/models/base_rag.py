@@ -239,7 +239,7 @@ class BaseRAG:
         return top_n_indices.tolist()
 
     def _rrf_fusion(self, dense_indices: List[int], sparse_indices: List[int],
-                    weights: Dict[str, float] = {'dense': 0.8, 'sparse': 0.2},  # <--- 新增权重参数
+                    weights: Dict[str, float] = {'dense': 1.0, 'sparse': 0},  # <--- 新增权重参数
                     k: int = 60) -> List[int]:
         """
         加权倒数排名融合 (Weighted Reciprocal Rank Fusion)
@@ -311,7 +311,7 @@ class BaseRAG:
         sparse_hits = self._search_sparse(query, top_k=RETRIEVAL_TOP_K_CANDIDATES)
 
         # 2. 融合 (Fusion)
-        fused_indices = self._rrf_fusion(dense_hits, sparse_hits,weights={'dense': 0.8, 'sparse': 0.2})
+        fused_indices = self._rrf_fusion(dense_hits, sparse_hits,weights={'dense': 1.0, 'sparse': 0})
         rerank_candidates = fused_indices[:RETRIEVAL_TOP_K_CANDIDATES]
 
         # 3. 重排序 (Rerank)
@@ -388,7 +388,3 @@ class BaseRAG:
     #     except Exception as e:
     #         logger.error(f"Error in retrieve: {e}")
     #         return []
-
-    def set_top_k(self, top_k: int):
-        """Set the number of top contexts to retrieve."""
-        self.top_k = top_k

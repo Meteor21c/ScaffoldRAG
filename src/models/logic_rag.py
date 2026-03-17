@@ -28,68 +28,6 @@ class LogicRAG(BaseRAG):
         """Set the maximum number of retrieval rounds."""
         self.max_rounds = max_rounds
 
-    #     def refine_summary_with_context(self, question: str, new_contexts: List[str],
-    #                                   current_summary: str = "") -> str:
-    #         """
-    #         Generate a new summary or refine an existing one based on newly retrieved contexts.
-    #
-    #         Args:
-    #             question: The original question
-    #             new_contexts: Newly retrieved context chunks
-    #             current_summary: Current information summary (if any)
-    #
-    #         Returns:
-    #             A concise summary of all relevant information so far
-    #         """
-    #         try:
-    #             context_text = "\n".join(new_contexts)
-    #
-    #             if not current_summary:
-    #                 # Generate initial summary
-    #                 prompt = f"""Please create a concise summary of the following information as it relates to answering this question:
-    #
-    # Question: {question}
-    #
-    # Information:
-    # {context_text}
-    #
-    # Your summary should:
-    # 1. Include all relevant facts that might help answer the question
-    # 2. Exclude irrelevant information
-    # 3. Be clear and concise
-    # 4. Preserve specific details, dates, numbers, and names that may be relevant
-    #
-    # Summary:"""
-    #             else:
-    #                 # Refine existing summary with new information
-    #                 prompt = f"""Please refine the following information summary using newly retrieved information.
-    #
-    # Question: {question}
-    #
-    # Current summary:
-    # {current_summary}
-    #
-    # New information:
-    # {context_text}
-    #
-    # Your refined summary should:
-    # 1. Integrate new relevant facts with the existing summary
-    # 2. Remove redundancies
-    # 3. Remain concise while preserving all important information
-    # 4. Prioritize information that helps answer the question
-    # 5. Maintain specific details, dates, numbers, and names that may be relevant
-    #
-    # Refined summary:"""
-    #
-    #             summary = get_response_with_retry(prompt)
-    #             return summary
-    #
-    #         except Exception as e:
-    #             logger.error(f"{Fore.RED}Error generating/refining summary: {e}{Style.RESET_ALL}")
-    #             # If error occurs, concatenate current summary with new contexts as fallback
-    #             if current_summary:
-    #                 return f"{current_summary}\n\nNew information:\n{context_text}"
-    #             return context_text
 
     def process_step(self, global_question: str, sub_query: str, contexts: List[str]) -> Dict[str, str]:
         """
@@ -230,53 +168,6 @@ Please format your response as a JSON object with these keys:
                 "missing_reason": "Analysis error occurred"
             }
 
-    #     def dependency_aware_rag(self, question: str, info_summary: str, dependencies: List[str], idx: int) -> str:
-    #         """
-    #         similar to "self.analyze_dependency_graph" that analyzes whether the current information summary is sufficient to answer the question,
-    #         this function analyzes whether the current information summary is sufficient to answer the question with the decomposed dependencies as references.
-    #
-    #         And the function will answer whether the question can be answered, and if not, it will update the current query with dependencies as references.
-    #
-    #         Args:
-    #             question: str
-    #             info_summary: str
-    #             dependencies: List[str]
-    #             idx: int
-    #         """
-    #
-    #         try:
-    #             prompt = f"""
-    #             We pre-parsed the question into a list of dependencies, and the dependencies are sorted in a topological order, below is the question, the information summary, and the decomposed dependencies:
-    #
-    #             Question: {question}
-    #
-    #             Available Information:
-    #             {info_summary}
-    #
-    #             Decomposed dependencies:
-    #             {dependencies}
-    #
-    #             Current dependency to be answered:
-    #             {dependencies[idx]}
-    #
-    #             Please analyze the question and the information summary, and the decomposed dependencies, and answer the following questions:
-    #             Please analyze:
-    #             1. Can the question be answered completely with this information? (Yes/No)
-    #             2. Summarize our current understanding based on available information.
-    #
-    #             Please format your response as a JSON object with these keys:
-    #             - "can_answer": boolean
-    #             - "current_understanding": string
-    #             """
-    #             response = get_response_with_retry(prompt)
-    #             result = fix_json_response(response)
-    #             return result
-    #         except Exception as e:
-    #             logger.error(f"{Fore.RED}Error in dependency_aware_rag: {e}{Style.RESET_ALL}")
-    #             return {
-    #                 "can_answer": True,
-    #                 "current_understanding": f"Error during analysis: {str(e)}",
-    #             }
 
     def dependency_aware_rag(self, question: str, history: List[Dict], dependencies: List[str], idx: int) -> Dict:
         """
@@ -326,28 +217,6 @@ Please format your response as a JSON object with these keys:
                 "current_understanding": f"Error during analysis: {str(e)}",
             }
 
-    #
-    #     def generate_answer(self, question: str, info_summary: str) -> str:
-    #         """Generate final answer based on the information summary."""
-    #         try:
-    #             prompt = f"""You must give ONLY the direct answer in the most concise way possible. DO NOT explain or provide any additional context.
-    # Guidelines:
-    # 1. Be concise but specific.
-    # 2. If the answer involves a specific person, place, or date mentioned in the summary, YOU MUST INCLUDE THEIR NAMES. Do not just use general categories if you have detailed information.
-    # 3. If the answer is a simple yes/no, just say "Yes." or "No."
-    #
-    # Question: {question}
-    #
-    # Information Summary:
-    # {info_summary}
-    #
-    # Remember: Be concise - give ONLY the essential answer, nothing more.
-    # Ans: """
-    #
-    #             return get_response_with_retry(prompt)
-    #         except Exception as e:
-    #             logger.error(f"{Fore.RED}Error generating answer: {e}{Style.RESET_ALL}")
-    #             return ""
 
     def generate_answer(self, question: str, history: List[Dict]) -> str:
         """Generate final answer based on the reasoning chain."""
@@ -357,24 +226,6 @@ Please format your response as a JSON object with these keys:
         print(debug_message)  ####################################  debug
 
         try:
-            #     prompt = f"""
-            # 【Task】:Based on the step-by-step reasoning process below, provide the direct answer to the question in the most concise way possible.DO NOT explain or provide any additional context.
-            # 【Guidelines】:
-            #     If the answer is a simple yes/no, just say "Yes." or "No."
-            #     If the answer is a name, just give the name.
-            #     If the answer is a date, just give the date.
-            #     If the answer is a number, just give the number.
-            #     If the answer requires a brief phrase, make it as concise as possible.
-            #
-            #     【Question】: {question}
-            #
-            #     【Reasoning Process】:
-            #     {history_text}
-            #
-            #
-            #     【Remember】: Be concise - give ONLY the essential answer, nothing more.
-            #     【Concise Answer】: """
-
             prompt = f"""
             You are a strict answer generator. You must generate the final answer based on the provided reasoning process.
             
@@ -388,8 +239,7 @@ Please format your response as a JSON object with these keys:
             2. If the answer is a name, date, or number, output JUST that entity.
             3. If the answer is a simple yes/no, just say "Yes" or "No".
             4. If the answer requires a brief phrase, make it as concise as possible.
-            5. If still fails to yield a result, infer a reasonable and brief answer.
-            
+                       
             Concise Answer: """
 
             print(f'''  - Final Answer:{get_response_with_retry(prompt)}''')
