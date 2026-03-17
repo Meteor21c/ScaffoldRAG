@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # OpenAI API Configuration
-OPENAI_API_KEY = "sk-oKGI2RQJkrcdK2S3d4IpqBMGQuBbrf7NvNgdEzzotuiY6fKF"
-OPENAI_BASE_URL = "https://api.chatanywhere.tech/v1"
+OPENAI_API_KEY = "xxxx"
+OPENAI_BASE_URL = "xxxxx"
 
 # API Rate Limiting Configuration
 CALLS_PER_MINUTE = 20
